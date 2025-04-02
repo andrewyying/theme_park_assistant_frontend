@@ -1,6 +1,6 @@
-# Welcome to your Expo app 👋
+# Theme Visitor Assistant App
 
-An [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An app that aims to enhance theme park visitor experience. An [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
 
