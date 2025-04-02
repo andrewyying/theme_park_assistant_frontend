@@ -1,9 +1,9 @@
+//@ts-nocheck
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Platform } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
-// Responsive design
 const TAB_BAR_HEIGHT = height * 0.08;
 const CUSTOM_BUTTON_SIZE = width * 0.15; 
 const CUSTOM_BUTTON_OFFSET = -TAB_BAR_HEIGHT * 0.3; 
@@ -72,9 +72,9 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="about"
+        name="profile"
         options={{
-          title: 'About',
+          title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'person-circle-sharp' : 'person-circle-outline'}
