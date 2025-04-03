@@ -2,18 +2,18 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Platform } from 'react-native';
-const { width, height } = Dimensions.get('window');
+import { ScreenConst } from '../../constants/screenconst';
+import { Theme } from '../../styles/theme';
 
-const TAB_BAR_HEIGHT = height * 0.08;
-const CUSTOM_BUTTON_SIZE = width * 0.15; 
+const TAB_BAR_HEIGHT = ScreenConst.window.height * 0.08;
+const CUSTOM_BUTTON_SIZE = ScreenConst.window.width * 0.15; 
 const CUSTOM_BUTTON_OFFSET = -TAB_BAR_HEIGHT * 0.3; 
-const THEME_COLOR = '#665AF0';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: THEME_COLOR,
+        tabBarActiveTintColor: Theme.colors.primary,
         tabBarShowLabel: true,
         tabBarStyle: {
           height: TAB_BAR_HEIGHT
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     width: CUSTOM_BUTTON_SIZE,
     height: CUSTOM_BUTTON_SIZE,
     borderRadius: CUSTOM_BUTTON_SIZE / 2,
-    backgroundColor: THEME_COLOR,
+    backgroundColor: Theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
