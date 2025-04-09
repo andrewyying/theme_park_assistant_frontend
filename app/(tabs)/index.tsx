@@ -4,52 +4,46 @@ import { StyleSheet, FlatList, Text } from 'react-native';
 import { ScreenConst } from '../../constants/screenconst';
 import GreetingCard from '../../components/GreetingCard';
 import MyPlan from '../../components/MyPlan';
-import Card from '../../components/Card'
+import EventCard from '../../components/EventCard'; // 👈 引入组件
 
 export default function Index() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     fetch('http://10.0.0.174:8080/events')
-      .then(response => response.json())
-      .then(data => setEvents(data))
-      .catch(error => console.error('Error fetching events:', error));
+      .then(res => res.json())
+      .then(setEvents)
+      .catch(console.error);
   }, []);
 
   return (
     <FlatList
       data={events}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={item => item.id.toString()}
       ListHeaderComponent={() => (
         <>
           <GreetingCard />
           <MyPlan />
-          <Text style={styles.subtitle}>Events Today</Text>
+          <Text style={styles.subtitle}>Upcoming Events</Text>
         </>
       )}
-      renderItem={({ item }) => (
-        <Card style={styles.queued_event}>
-          <Text style={{ fontSize: 18 }}>{item.name}</Text>
-          <Text>{item.description}</Text>
-          <Text>{item.startTime}</Text>
-        </Card>
-      )}
-      contentContainerStyle={{ padding: 20 }}
+      renderItem={({ item }) => <EventCard event={item} />}
+      contentContainerStyle={styles.listContainer}
     />
-
   );
 }
 
 const styles = StyleSheet.create({
   subtitle: {
-    marginTop: ScreenConst.window.height * 0.02,
-    marginBottom: ScreenConst.window.height * 0.01,
-    marginHorizontal: ScreenConst.window.width * 0.03,
-    fontSize: 30,
+    marginTop: ScreenConst.window.height * 0.04,
+    marginBottom: ScreenConst.window.height * 0.02,
+    marginHorizontal: ScreenConst.window.width * 0.01,
+    fontSize: 23,
     fontStyle: 'italic',
     fontWeight: '700',
   },
-  queued_event: {
-    marginBottom: 10,
+  listContainer: {
+    paddingHorizontal: ScreenConst.window.width * 0.05,
+    paddingVertical: ScreenConst.window.height * 0.02,
   },
 });

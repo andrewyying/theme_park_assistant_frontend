@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import { ScreenConst } from '../constants/screenconst';
 
 interface CardProps {
   children: ReactNode;
@@ -17,7 +16,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 12,
-    paddingVertical: ScreenConst.window.height * 0.02,
-    paddingHorizontal: ScreenConst.window.width * 0.05,
+    // Shadow effect to be added
   },
 });
