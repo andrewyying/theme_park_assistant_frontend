@@ -1,10 +1,9 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, FlatList, Text } from 'react-native';
+import { StyleSheet, FlatList, Text } from 'react-native';
 import { ScreenConst } from '../../constants/screenconst';
 import GreetingCard from '../../components/GreetingCard';
 import MyPlan from '../../components/MyPlan';
-import EventsToday from '../../components/EventsToday';
 import Card from '../../components/Card'
 
 export default function Index() {
