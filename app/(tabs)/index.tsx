@@ -1,13 +1,14 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, Text } from 'react-native';
+import { StyleSheet, FlatList, Text, Pressable } from 'react-native';
 import { ScreenConst } from '../../constants/screenconst';
 import GreetingCard from '../../components/GreetingCard';
 import MyPlan from '../../components/MyPlan';
-import EventCard from '../../components/EventCard'; // 👈 引入组件
+import EventCard from '../../components/EventCard';
 
 export default function Index() {
   const [events, setEvents] = useState([]);
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     fetch('http://10.0.0.174:8080/events')
@@ -15,6 +16,10 @@ export default function Index() {
       .then(setEvents)
       .catch(console.error);
   }, []);
+
+  const handlePress = (id) => {
+    setExpandedId(prev => (prev === id ? null : id));
+  };
 
   return (
     <FlatList
@@ -27,7 +32,14 @@ export default function Index() {
           <Text style={styles.subtitle}>Upcoming Events</Text>
         </>
       )}
-      renderItem={({ item }) => <EventCard event={item} />}
+      renderItem={({ item }) => (
+        <Pressable
+          onPress={() => handlePress(item.id)}
+          style={{ opacity: 1 }}
+        >
+          <EventCard event={item} expanded={item.id === expandedId} />
+        </Pressable>
+      )}
       contentContainerStyle={styles.listContainer}
     />
   );

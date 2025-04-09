@@ -1,6 +1,12 @@
 //@ts-nocheck
-import React from 'react';
-import { Text, ImageBackground, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  Text,
+  ImageBackground,
+  StyleSheet,
+  LayoutAnimation,
+  View,
+} from 'react-native';
 import Card from './Card';
 import { ScreenConst } from '../constants/screenconst';
 import { formatDate } from '../utils/dateUtils';
@@ -8,7 +14,11 @@ import { formatDate } from '../utils/dateUtils';
 const WIDTH = ScreenConst.window.width;
 const HEIGHT = ScreenConst.window.height;
 
-export default function EventCard({ event }) {
+export default function EventCard({ event, expanded }: { event: any, expanded?: boolean }) {
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [expanded]);
+
   return (
     <Card style={styles.container}>
       <ImageBackground
@@ -16,8 +26,14 @@ export default function EventCard({ event }) {
         style={styles.image}
         imageStyle={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
       />
-      <Text style={styles.date}>{formatDate(event.startdate)}</Text>
+      <Text style={styles.date}>{formatDate(event.date)}</Text>
       <Text style={styles.title}>{event.name}</Text>
+
+      {expanded && (
+        <View style={styles.expandedSection}>
+          <Text style={styles.description}>{event.description}</Text>
+        </View>
+      )}
     </Card>
   );
 }
@@ -49,5 +65,15 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: HEIGHT * 0.015,
     marginLeft: WIDTH * 0.03,
+  },
+  expandedSection: {
+    marginTop: 8,
+    marginHorizontal: 12,
+    paddingBottom: 12,
+  },
+  description: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 4,
   },
 });
