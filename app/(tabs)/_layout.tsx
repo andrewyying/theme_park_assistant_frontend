@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { TouchableOpacity, View, StyleSheet, Dimensions, Platform } from 'react-native';
+import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { ScreenConst } from '../../constants/screenconst';
 import { Theme } from '../../styles/theme';
 

@@ -20,5 +20,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: WIDTH * 0.04,
     paddingVertical: HEIGHT * 0.02,
     minHeight: HEIGHT * 0.125,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
 });

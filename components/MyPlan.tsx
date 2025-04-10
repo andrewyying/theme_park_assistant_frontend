@@ -42,5 +42,9 @@ const styles = StyleSheet.create({
   my_plan_card: {
     paddingHorizontal: WIDTH * 0.04,
     paddingVertical: HEIGHT * 0.02,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
 });
