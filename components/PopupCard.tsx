@@ -2,6 +2,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { ScreenConst } from "@/constants/screenconst";
+
+const HEIGHT = ScreenConst.window.height;
+const WIDTH = ScreenConst.window.width;
 
 export default function PopupCard({ spot, onClose }) {
   if (!spot) return null;
@@ -20,10 +24,11 @@ export default function PopupCard({ spot, onClose }) {
 const styles = StyleSheet.create({
   card: {
     position: 'absolute',
-    bottom: 50,
-    left: 20,
-    right: 20,
-    padding: 16,
+    bottom: HEIGHT * 0.12,
+    left: WIDTH * 0.04,
+    right: WIDTH * 0.04,
+    paddingHorizontal: WIDTH * 0.04,
+    paddingVertical: HEIGHT * 0.01,
     backgroundColor: 'white',
     borderRadius: 12,
     shadowColor: '#000',

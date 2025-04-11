@@ -39,6 +39,7 @@ export default function TabLayout() {
         name="map"
         options={{
           title: 'Map',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'map-sharp' : 'map-outline'}

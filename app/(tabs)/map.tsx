@@ -1,7 +1,9 @@
 // @ts-nocheck
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import React, { useRef, useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { ScreenConst } from '@/constants/screenconst';
 import { Theme } from "@/styles/theme";
 import FilterIcon from "@/components/FilterIcon";
@@ -19,8 +21,16 @@ const FILTERS = [
 ];
 
 export default function MapScreen() {
+  const mapRef = useRef(null);
   const [selected, setSelected] = useState(null);
   const [selectedTypes, setSelectedTypes] = useState([]);
+
+  const initialCamera = {
+    center: { latitude: 42.368140769353516, longitude: -87.93421773095362 },
+    heading: 150,
+    altitude: 1300,
+    zoom: 13,
+  };
 
   const attractions = [
     {
@@ -47,6 +57,35 @@ export default function MapScreen() {
     );
   };
 
+
+  const handleResetCamera = () => {
+    mapRef.current?.animateCamera(initialCamera, { duration: 800 });
+  };
+
+  const handleTrackUserLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Location permission is required to track your location.');
+      return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    const headingData = await Location.getHeadingAsync();
+
+    mapRef.current?.animateCamera(
+      {
+        center: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        heading: headingData.trueHeading || 0,
+        zoom: 16,
+      },
+      { duration: 800 }
+    );
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>
@@ -64,34 +103,41 @@ export default function MapScreen() {
                 size={28}
                 color={focused ? Theme.colors.primary : '#777'}
               />
-              <Text style={[styles.label, { color: focused ? '#5D5FEF' : '#666' }]}>
-                {filter.label}
-              </Text>
+              <Text style={[styles.label, { color: focused ? '#5D5FEF' : '#666' }]}>{filter.label}</Text>
             </TouchableOpacity>
           );
         })}
       </View>
 
       <MapView
+        ref={mapRef}
         style={styles.map}
-        initialCamera={{
-          center: { latitude: 42.368140769353516, longitude: -87.93421773095362 },
-          heading:150,
-          altitude: 1300,
-          zoom: 13
-        }}
+        initialCamera={initialCamera}
       >
-        {attractions.map((spot) => (
-          <Marker
-            key={spot.id}
-            coordinate={spot.coordinate}
-            onPress={() => setSelected(spot)}
-          >
-            <CustomMarker />
-          </Marker>
-        ))}
+        {attractions
+          .filter(
+            (spot) => selectedTypes.length === 0 || selectedTypes.includes(spot.type)
+          )
+          .map((spot) => (
+            <Marker
+              key={spot.id}
+              coordinate={spot.coordinate}
+              onPress={() => setSelected(spot)}
+            >
+              <CustomMarker />
+            </Marker>
+          ))}
       </MapView>
+
       <PopupCard spot={selected} onClose={() => setSelected(null)} />
+
+      <TouchableOpacity style={styles.locateButton} onPress={handleTrackUserLocation}>
+        <Ionicons name="navigate-circle" size={48} color={Theme.colors.primary} />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.resetButton} onPress={handleResetCamera}>
+        <Ionicons name="refresh-circle" size={48} color={Theme.colors.primary} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -99,15 +145,13 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: WIDTH * 0.05,
-    paddingTop: HEIGHT * 0.01,
-    paddingBottom: HEIGHT * 0.06,
+    paddingTop: HEIGHT * 0.065,
     backgroundColor: 'white',
   },
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: HEIGHT * 0.03,
+    paddingVertical: HEIGHT * 0.015,
   },
   filterButton: {
     alignItems: 'center',
@@ -118,11 +162,21 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-    borderRadius: 12,
   },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 4,
+  resetButton: {
+    position: 'absolute',
+    bottom: HEIGHT * 0.04,
+    left: WIDTH * 0.04,
+    backgroundColor: 'white',
+    borderRadius: 30,
+    padding: 2,
+  },
+  locateButton: {
+    position: 'absolute',
+    bottom: HEIGHT * 0.04,
+    right: WIDTH * 0.04,
+    backgroundColor: 'white',
+    borderRadius: 30,
+    padding: 2,
   },
 });
