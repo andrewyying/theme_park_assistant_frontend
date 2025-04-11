@@ -1,12 +1,20 @@
-//@ts-nocheck
+// @ts-nocheck
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { FILTERS, ICON_LIBRARIES } from '@/constants/mapIconConfig';
+import { Theme } from "@/styles/theme";
 
-export default function CustomMarker({ icon = 'map-marker', color = 'red' }) {
+export default function CustomMarker({ type }) {
+  const targetFilter = FILTERS.find((item) => item.type === type);
+
+  if (!targetFilter) return null;
+
+  const IconComponent = ICON_LIBRARIES[targetFilter.library];
+  const iconName = targetFilter.icon;
+
   return (
     <View style={styles.marker}>
-      <FontAwesome name={icon} size={30} color={color} />
+      <IconComponent name={iconName} size={24} color= {Theme.colors.primary} />
     </View>
   );
 }

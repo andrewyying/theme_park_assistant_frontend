@@ -1,29 +1,33 @@
 // @ts-nocheck
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+
 import { ScreenConst } from '@/constants/screenconst';
 import { Theme } from "@/styles/theme";
 import FilterIcon from "@/components/FilterIcon";
 import CustomMarker from "@/components/CustomMarker";
 import PopupCard from "@/components/PopupCard";
+import { FILTERS } from "@/constants/mapIconConfig";
 
 const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
 
-const FILTERS = [
-  { type: 'attractions', label: 'Attractions', icon: 'magic', library: 'FontAwesome' },
-  { type: 'rides', label: 'Rides', icon: 'attractions', library: 'MaterialIcons' },
-  { type: 'dining', label: 'Dining', icon: 'restaurant', library: 'Ionicons' },
-  { type: 'restroom', label: 'Restroom', icon: 'family-restroom', library: 'MaterialIcons' },
-];
-
 export default function MapScreen() {
-  const mapRef = useRef(null);
+  const mapRef = useRef<MapView>(null);
+
   const [selected, setSelected] = useState(null);
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [mapReady, setMapReady] = useState(false);
+  const [trackView, setTrackView] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setTrackView(false), 30);
+    return () => clearTimeout(timer);
+  }, []);
+
 
   const initialCamera = {
     center: { latitude: 42.368140769353516, longitude: -87.93421773095362 },
@@ -57,7 +61,6 @@ export default function MapScreen() {
     );
   };
 
-
   const handleResetCamera = () => {
     mapRef.current?.animateCamera(initialCamera, { duration: 800 });
   };
@@ -84,7 +87,6 @@ export default function MapScreen() {
       { duration: 800 }
     );
   };
-
 
   return (
     <View style={styles.container}>
@@ -113,20 +115,22 @@ export default function MapScreen() {
         ref={mapRef}
         style={styles.map}
         initialCamera={initialCamera}
+        showsPointsOfInterest={false}
+        onMapReady={() => setMapReady(true)}
       >
-        {attractions
-          .filter(
-            (spot) => selectedTypes.length === 0 || selectedTypes.includes(spot.type)
-          )
+        {mapReady && attractions
+          .filter((spot) => selectedTypes.length === 0 || selectedTypes.includes(spot.type))
           .map((spot) => (
             <Marker
               key={spot.id}
               coordinate={spot.coordinate}
               onPress={() => setSelected(spot)}
+              tracksViewChanges={false}
             >
-              <CustomMarker />
+              <CustomMarker type={spot.type} />
             </Marker>
-          ))}
+          ))
+        }
       </MapView>
 
       <PopupCard spot={selected} onClose={() => setSelected(null)} />
