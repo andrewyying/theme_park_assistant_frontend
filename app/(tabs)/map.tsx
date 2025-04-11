@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
@@ -11,6 +11,7 @@ import FilterIcon from "@/components/FilterIcon";
 import CustomMarker from "@/components/CustomMarker";
 import PopupCard from "@/components/PopupCard";
 import { FILTERS } from "@/constants/mapIconConfig";
+import { PLACES } from "@/constants/places";
 
 const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
@@ -29,28 +30,12 @@ export default function MapScreen() {
   }, []);
 
   const initialCamera = {
-    center: { latitude: 42.368140769353516, longitude: -87.93421773095362 },
+    center: { latitude: 42.367740769353516, longitude: -87.93381773095362 },
     heading: 150,
-    altitude: 1300,
-    zoom: 13,
+    altitude: 1700,
   };
 
-  const places = [
-    {
-      id: 1,
-      name: 'Example Ride 1',
-      description: 'Some roller coaster. Waiting time to be provided by the backend',
-      coordinate: { latitude: 42.36570825462933, longitude: -87.93372524277262 },
-      type: 'rides',
-    },
-    {
-      id: 2,
-      name: 'Restaurant',
-      description: 'Restaurant Information',
-      coordinate: { latitude: 42.36917329350974, longitude: -87.93609662108737 },
-      type: 'dining',
-    },
-  ];
+  const places = PLACES;
 
   const handleToggleType = (type) => {
     setSelectedTypes((prev) =>
