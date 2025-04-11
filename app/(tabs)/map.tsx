@@ -24,10 +24,9 @@ export default function MapScreen() {
   const [trackView, setTrackView] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setTrackView(false), 30);
+    const timer = setTimeout(() => setTrackView(false), 80);
     return () => clearTimeout(timer);
   }, []);
-
 
   const initialCamera = {
     center: { latitude: 42.368140769353516, longitude: -87.93421773095362 },
@@ -36,7 +35,7 @@ export default function MapScreen() {
     zoom: 13,
   };
 
-  const attractions = [
+  const places = [
     {
       id: 1,
       name: 'Example Ride 1',
@@ -118,7 +117,7 @@ export default function MapScreen() {
         showsPointsOfInterest={false}
         onMapReady={() => setMapReady(true)}
       >
-        {mapReady && attractions
+        {mapReady && places
           .filter((spot) => selectedTypes.length === 0 || selectedTypes.includes(spot.type))
           .map((spot) => (
             <Marker
