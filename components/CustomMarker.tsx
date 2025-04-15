@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { FILTERS, ICON_LIBRARIES } from '@/constants/mapIconConfig';
+import { FILTERS, ICON_LIBRARIES } from '@/constants/mapconst';
 import { Theme } from "@/styles/theme";
 
 export default function CustomMarker({ type }) {

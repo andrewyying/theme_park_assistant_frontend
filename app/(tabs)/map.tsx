@@ -1,24 +1,25 @@
 // @ts-nocheck
 import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polygon } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-
 import { ScreenConst } from '@/constants/screenconst';
 import { Theme } from "@/styles/theme";
 import FilterIcon from "@/components/FilterIcon";
 import CustomMarker from "@/components/CustomMarker";
 import PopupCard from "@/components/PopupCard";
-import { FILTERS } from "@/constants/mapIconConfig";
 import { PLACES } from "@/constants/places";
+import { LIVE_MAP, FILTERS } from "@/constants/mapconst";
+
 
 const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
+const initialCamera = LIVE_MAP.initalCamera;
+const places = PLACES;
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
-
   const [selected, setSelected] = useState(null);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [mapReady, setMapReady] = useState(false);
@@ -28,14 +29,6 @@ export default function MapScreen() {
     const timer = setTimeout(() => setTrackView(false), 80);
     return () => clearTimeout(timer);
   }, []);
-
-  const initialCamera = {
-    center: { latitude: 42.367740769353516, longitude: -87.93381773095362 },
-    heading: 150,
-    altitude: 1700,
-  };
-
-  const places = PLACES;
 
   const handleToggleType = (type) => {
     setSelectedTypes((prev) =>
@@ -78,19 +71,20 @@ export default function MapScreen() {
         {FILTERS.map((filter) => {
           const focused = selectedTypes.includes(filter.type);
           return (
-            <TouchableOpacity
-              key={filter.type}
-              style={styles.filterButton}
-              onPress={() => handleToggleType(filter.type)}
-            >
-              <FilterIcon
-                library={filter.library}
-                name={filter.icon}
-                size={28}
-                color={focused ? Theme.colors.primary : '#777'}
-              />
+            <View style={styles.filterItem} key={filter.type}>
+              <TouchableOpacity
+                style={styles.filterButton}
+                onPress={() => handleToggleType(filter.type)}
+              >
+                <FilterIcon
+                  library={filter.library}
+                  name={filter.icon}
+                  size={28}
+                  color={focused ? Theme.colors.primary : '#777'}
+                />
+              </TouchableOpacity>
               <Text style={[styles.label, { color: focused ? '#5D5FEF' : '#666' }]}>{filter.label}</Text>
-            </TouchableOpacity>
+            </View>
           );
         })}
       </View>
@@ -102,6 +96,14 @@ export default function MapScreen() {
         showsPointsOfInterest={false}
         onMapReady={() => setMapReady(true)}
       >
+        <Polygon
+          coordinates={LIVE_MAP.outerPolygon}
+          holes={[LIVE_MAP.highlightedArea]}
+          fillColor={LIVE_MAP.mask}
+          strokeWidth={1}
+          strokeColor={Theme.colors.primary}
+          zIndex={1}
+        />
         {mapReady && places
           .filter((spot) => selectedTypes.length === 0 || selectedTypes.includes(spot.type))
           .map((spot) => (
@@ -110,6 +112,7 @@ export default function MapScreen() {
               coordinate={spot.coordinate}
               onPress={() => setSelected(spot)}
               tracksViewChanges={false}
+              zIndex={2}
             >
               <CustomMarker type={spot.type} />
             </Marker>
@@ -141,12 +144,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: HEIGHT * 0.015,
   },
-  filterButton: {
+
+  filterItem: {
     alignItems: 'center',
   },
+
+  filterButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: WIDTH * 0.15,
+  },
+
   label: {
     fontSize: 12,
     marginTop: 2,
+    textAlign: 'center',
   },
   map: {
     flex: 1,

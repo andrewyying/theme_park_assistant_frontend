@@ -31,7 +31,7 @@ export const PLACES = [
     name: 'NEW! SAW 20th Anniversary',
     description: 'Description of the event',
     coordinate: { latitude: 42.3652142389286, longitude: -87.93553288035076 },
-    type: 'attractions',
+    type: 'shop',
   },
   {
     id: 5,

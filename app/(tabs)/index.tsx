@@ -11,7 +11,7 @@ export default function Index() {
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
-    fetch('http://10.0.0.147:8080/events') // Home 10.0.0.147, Android emulator 10.0.2.2, UChicago eduroam 10.150.127.180
+    fetch('http://10.0.0.174:8080/events') // Home 10.0.0.174, Android emulator 10.0.2.2, UChicago eduroam 10.150.127.180
       .then(res => res.json())
       .then(setEvents)
       .catch(console.error);
