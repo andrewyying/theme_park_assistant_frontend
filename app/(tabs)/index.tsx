@@ -5,13 +5,14 @@ import { ScreenConst } from '../../constants/screenconst';
 import GreetingCard from '../../components/GreetingCard';
 import MyPlan from '../../components/MyPlan';
 import EventCard from '../../components/EventCard';
+import { LOCAL_HOST } from "@/constants/connection";
 
 export default function Index() {
   const [events, setEvents] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
-    fetch('http://10.0.0.174:8080/events') // Home 10.0.0.174, Android emulator 10.0.2.2, UChicago eduroam 10.150.127.180
+    fetch('http://' + LOCAL_HOST + ':8080/events')
       .then(res => res.json())
       .then(setEvents)
       .catch(console.error);

@@ -9,18 +9,18 @@ import { Theme } from "@/styles/theme";
 import FilterIcon from "@/components/FilterIcon";
 import CustomMarker from "@/components/CustomMarker";
 import PopupCard from "@/components/PopupCard";
-import { PLACES } from "@/constants/places";
 import { LIVE_MAP, FILTERS } from "@/constants/mapconst";
-
+import { LOCAL_HOST } from "@/constants/connection";
 
 const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
 const initialCamera = LIVE_MAP.initalCamera;
-const places = PLACES;
+
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
   const [selected, setSelected] = useState(null);
+  const [places, setPlaces] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [mapReady, setMapReady] = useState(false);
   const [trackView, setTrackView] = useState(true);
@@ -28,6 +28,26 @@ export default function MapScreen() {
   useEffect(() => {
     const timer = setTimeout(() => setTrackView(false), 80);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const url = `http://${LOCAL_HOST}:8080/locations`;
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+      })
+      .then(raw => {
+        const mapped = raw.map(item => ({
+          ...item,
+          coordinate: {
+            latitude: item.latitude,
+            longitude: item.longitude
+          }
+        }));
+        setPlaces(mapped);
+      })
+      .catch(console.error);
   }, []);
 
   const handleToggleType = (type) => {
@@ -105,8 +125,8 @@ export default function MapScreen() {
           zIndex={1}
         />
         {mapReady && places
-          .filter((spot) => selectedTypes.length === 0 || selectedTypes.includes(spot.type))
-          .map((spot) => (
+          .filter(spot => selectedTypes.length === 0 || selectedTypes.includes(spot.type))
+          .map(spot => (
             <Marker
               key={spot.id}
               coordinate={spot.coordinate}
