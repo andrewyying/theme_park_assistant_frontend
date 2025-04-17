@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,11 +16,10 @@ const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
 const initialCamera = LIVE_MAP.initalCamera;
 
-
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
-  const [selected, setSelected] = useState(null);
   const [places, setPlaces] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [mapReady, setMapReady] = useState(false);
   const [trackView, setTrackView] = useState(true);
@@ -30,6 +29,7 @@ export default function MapScreen() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Get location data from backend
   useEffect(() => {
     const url = `http://${LOCAL_HOST}:8080/locations`;
     fetch(url)
@@ -37,16 +37,14 @@ export default function MapScreen() {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();
       })
-      .then(data => {
-        setPlaces(data);
-      })
+      .then(data => setPlaces(data))
       .catch(console.error);
   }, []);
 
-  const handleToggleType = (type) => {
-    setSelectedTypes((prev) =>
+  const handleToggleType = type => {
+    setSelectedTypes(prev =>
       prev.includes(type)
-        ? prev.filter((t) => t !== type)
+        ? prev.filter(t => t !== type)
         : [...prev, type]
     );
   };
@@ -58,22 +56,13 @@ export default function MapScreen() {
   const handleTrackUserLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission denied', 'Location permission is required to track your location.');
+      Alert.alert('Permission denied', 'Location permission is required.');
       return;
     }
-
-    const location = await Location.getCurrentPositionAsync({});
-    const headingData = await Location.getHeadingAsync();
-
+    const loc = await Location.getCurrentPositionAsync({});
+    const heading = (await Location.getHeadingAsync()).trueHeading || 0;
     mapRef.current?.animateCamera(
-      {
-        center: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
-        heading: headingData.trueHeading || 0,
-        zoom: 16,
-      },
+      { center: loc.coords, heading },
       { duration: 800 }
     );
   };
@@ -81,7 +70,7 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>
-        {FILTERS.map((filter) => {
+        {FILTERS.map(filter => {
           const focused = selectedTypes.includes(filter.type);
           return (
             <View style={styles.filterItem} key={filter.type}>
@@ -96,7 +85,14 @@ export default function MapScreen() {
                   color={focused ? Theme.colors.primary : '#777'}
                 />
               </TouchableOpacity>
-              <Text style={[styles.label, { color: focused ? '#5D5FEF' : '#666' }]}>{filter.label}</Text>
+              <Text
+                style={[
+                  styles.label,
+                  { color: focused ? Theme.colors.primary : '#666' }
+                ]}
+              >
+                {filter.label}
+              </Text>
             </View>
           );
         })}
@@ -108,6 +104,9 @@ export default function MapScreen() {
         initialCamera={initialCamera}
         showsPointsOfInterest={false}
         onMapReady={() => setMapReady(true)}
+        showsUserLocation={true}
+        followsUserLocation={false}
+        mapType={"satelliteFlyover"}
       >
         <Polygon
           coordinates={LIVE_MAP.outerPolygon}
@@ -117,29 +116,43 @@ export default function MapScreen() {
           strokeColor={Theme.colors.primary}
           zIndex={1}
         />
-        {mapReady && places
-          .filter(spot => selectedTypes.length === 0 || selectedTypes.includes(spot.type))
-          .map(spot => (
-            <Marker
-              key={spot.id}
-              coordinate={spot.coordinate}
-              onPress={() => setSelected(spot)}
-              tracksViewChanges={false}
-              zIndex={2}
-            >
-              <CustomMarker type={spot.type} />
-            </Marker>
-          ))
-        }
+
+        {mapReady &&
+          places
+            .filter(
+              spot =>
+                selectedTypes.length === 0 ||
+                selectedTypes.includes(spot.type)
+            )
+            .map(spot => (
+              <Marker
+                key={spot.id}
+                coordinate={spot.coordinate}
+                anchor={{ x: 0.5, y: 1 }}
+                onPress={() => setSelected(spot)}
+                tracksViewChanges={false}
+                zIndex={2}
+              >
+                <CustomMarker
+                  type={spot.type}
+                  name={spot.name}
+                />
+              </Marker>
+            ))}
       </MapView>
 
       <PopupCard spot={selected} onClose={() => setSelected(null)} />
 
-      <TouchableOpacity style={styles.locateButton} onPress={handleTrackUserLocation}>
+      <TouchableOpacity
+        style={styles.locateButton}
+        onPress={handleTrackUserLocation}
+      >
         <Ionicons name="navigate-circle" size={48} color={Theme.colors.primary} />
       </TouchableOpacity>
-
-      <TouchableOpacity style={styles.resetButton} onPress={handleResetCamera}>
+      <TouchableOpacity
+        style={styles.resetButton}
+        onPress={handleResetCamera}
+      >
         <Ionicons name="refresh-circle" size={48} color={Theme.colors.primary} />
       </TouchableOpacity>
     </View>
@@ -150,39 +163,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: HEIGHT * 0.065,
-    backgroundColor: 'white',
+    backgroundColor: 'white'
   },
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: HEIGHT * 0.015,
+    paddingVertical: HEIGHT * 0.015
   },
-
   filterItem: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
-
   filterButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: WIDTH * 0.15,
+    width: WIDTH * 0.15
   },
-
   label: {
     fontSize: 12,
     marginTop: 2,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   map: {
-    flex: 1,
-  },
-  resetButton: {
-    position: 'absolute',
-    bottom: HEIGHT * 0.04,
-    left: WIDTH * 0.04,
-    backgroundColor: 'white',
-    borderRadius: 30,
-    padding: 2,
+    flex: 1
   },
   locateButton: {
     position: 'absolute',
@@ -190,6 +192,14 @@ const styles = StyleSheet.create({
     right: WIDTH * 0.04,
     backgroundColor: 'white',
     borderRadius: 30,
-    padding: 2,
+    padding: 2
   },
+  resetButton: {
+    position: 'absolute',
+    bottom: HEIGHT * 0.04,
+    left: WIDTH * 0.04,
+    backgroundColor: 'white',
+    borderRadius: 30,
+    padding: 2
+  }
 });

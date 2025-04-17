@@ -3,9 +3,10 @@ import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 export const LIVE_MAP = {
   initalCamera: {
-    center: { latitude: 42.36767460660305, longitude: -87.93500500813687 },
-    heading: 170,
-    altitude: 2500,
+    center: { latitude: 42.369494701032345, longitude: -87.93543836389712 },
+    heading: 155,
+    pitch: 60,
+    altitude: 230,
   },
   outerPolygon: [
     { latitude: 45, longitude: -90 },
@@ -65,13 +66,13 @@ export const LIVE_MAP = {
     { latitude: 42.3713851205792, longitude: -87.9348707653177 },
     { latitude: 42.370782877372, longitude: -87.9351578114928 },
     { latitude: 42.3706934902056, longitude: -87.9357164186951 },
-    { latitude: 42.37058316442822, longitude: -87.93615378725066 },
+    { latitude: 42.37058316442822, longitude: -87.93615378725066 }, // Front Gate
   ],
   mask: "rgba(200,200,200,0.7)",
 };
 
 export const FILTERS = [
-  { type: 'rides', label: 'Rides', icon: 'attractions', library: 'MaterialIcons' },
+  { type: 'ride', label: 'Rides', icon: 'attractions', library: 'MaterialIcons' },
   { type: 'dining', label: 'Dining', icon: 'fast-food', library: 'Ionicons' },
   { type: 'shop', label: 'Shops', icon: 'gift', library: 'Ionicons' },
   { type: 'restroom', label: 'Restroom', icon: 'family-restroom', library: 'MaterialIcons' },
