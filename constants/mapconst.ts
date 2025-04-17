@@ -3,10 +3,10 @@ import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 export const LIVE_MAP = {
   initalCamera: {
-    center: { latitude: 42.369494701032345, longitude: -87.93543836389712 },
+    center: { latitude: 42.369612686017334, longitude: -87.93551392606179 },
     heading: 155,
-    pitch: 60,
-    altitude: 230,
+    pitch: 50,
+    altitude: 250,
   },
   outerPolygon: [
     { latitude: 45, longitude: -90 },

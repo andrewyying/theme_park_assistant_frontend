@@ -59,12 +59,12 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="ticket"
+        name="bookmark"
         options={{
-          title: 'Ticket',
+          title: 'Bookmark',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'ticket-sharp' : 'ticket-outline'}
+              name={focused ? 'bookmark' : 'bookmark-outline'}
               color={color}
               size={24}
             />
