@@ -37,15 +37,8 @@ export default function MapScreen() {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();
       })
-      .then(raw => {
-        const mapped = raw.map(item => ({
-          ...item,
-          coordinate: {
-            latitude: item.latitude,
-            longitude: item.longitude
-          }
-        }));
-        setPlaces(mapped);
+      .then(data => {
+        setPlaces(data);
       })
       .catch(console.error);
   }, []);
