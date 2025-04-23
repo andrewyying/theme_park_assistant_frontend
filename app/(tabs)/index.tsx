@@ -8,7 +8,6 @@ import EventCard from '../../components/EventCard';
 import { LOCAL_HOST } from "@/constants/connection";
 import { useRouter } from 'expo-router';
 
-
 export default function Index() {
   const [events, setEvents] = useState([]);
   const [expandedId, setExpandedId] = useState(null);

@@ -7,10 +7,10 @@ import {ScreenConst} from '@/constants/screenconst';
 import {Theme} from "@/styles/theme";
 import PopupCard from "@/components/mapScreen/PopupCard";
 import {LIVE_MAP, FILTERS} from "@/constants/mapconst";
-import {LOCAL_HOST} from "@/constants/connection";
 import FilterBar from "@/components/mapScreen/FilterBar";
 import MapMarkers from "@/components/mapScreen/MapMarkers";
 import FloatingButton from "@/components/mapScreen/FloatingButton";
+import {usePlaces} from '@/hooks/usePlaces';
 
 const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
@@ -18,27 +18,15 @@ const initialCamera = LIVE_MAP.initalCamera;
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
-  const [places, setPlaces] = useState([]);
   const [selected, setSelected] = useState(null);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [trackView, setTrackView] = useState(true);
+  const {places} = usePlaces();
 
   // Wait for page rendering 80ms
   useEffect(() => {
     const timer = setTimeout(() => setTrackView(false), 60);
     return () => clearTimeout(timer);
-  }, []);
-
-  // Get location data from backend
-  useEffect(() => {
-    const url = `http://${LOCAL_HOST}:8080/locations`;
-    fetch(url)
-      .then(res => {
-        if (!res.ok) throw new Error(res.statusText);
-        return res.json();
-      })
-      .then(data => setPlaces(data))
-      .catch(console.error);
   }, []);
 
   // Toggle filter bar (different location types)
