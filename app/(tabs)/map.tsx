@@ -1,16 +1,16 @@
 // @ts-nocheck
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
-import { Ionicons } from '@expo/vector-icons';
+import React, {useRef, useState, useEffect} from 'react';
+import {View, StyleSheet, Alert} from 'react-native';
+import MapView, {Polygon} from 'react-native-maps';
 import * as Location from 'expo-location';
-import { ScreenConst } from '@/constants/screenconst';
-import { Theme } from "@/styles/theme";
-import FilterIcon from "@/components/FilterIcon";
-import CustomMarker from "@/components/CustomMarker";
-import PopupCard from "@/components/PopupCard";
-import { LIVE_MAP, FILTERS } from "@/constants/mapconst";
-import { LOCAL_HOST } from "@/constants/connection";
+import {ScreenConst} from '@/constants/screenconst';
+import {Theme} from "@/styles/theme";
+import PopupCard from "@/components/mapScreen/PopupCard";
+import {LIVE_MAP, FILTERS} from "@/constants/mapconst";
+import {LOCAL_HOST} from "@/constants/connection";
+import FilterBar from "@/components/mapScreen/FilterBar";
+import MapMarkers from "@/components/mapScreen/MapMarkers";
+import FloatingButton from "@/components/mapScreen/FloatingButton";
 
 const HEIGHT = ScreenConst.window.height;
 const WIDTH = ScreenConst.window.width;
@@ -21,11 +21,11 @@ export default function MapScreen() {
   const [places, setPlaces] = useState([]);
   const [selected, setSelected] = useState(null);
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [mapReady, setMapReady] = useState(false);
   const [trackView, setTrackView] = useState(true);
 
+  // Wait for page rendering 80ms
   useEffect(() => {
-    const timer = setTimeout(() => setTrackView(false), 80);
+    const timer = setTimeout(() => setTrackView(false), 60);
     return () => clearTimeout(timer);
   }, []);
 
@@ -41,6 +41,7 @@ export default function MapScreen() {
       .catch(console.error);
   }, []);
 
+  // Toggle filter bar (different location types)
   const handleToggleType = type => {
     setSelectedTypes(prev =>
       prev.includes(type)
@@ -49,12 +50,14 @@ export default function MapScreen() {
     );
   };
 
+  // Resets camera to initial view
   const handleResetCamera = () => {
-    mapRef.current?.animateCamera(initialCamera, { duration: 800 });
+    mapRef.current?.animateCamera(initialCamera, {duration: 800});
   };
 
+  // Track user location
   const handleTrackUserLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
+    const {status} = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission denied', 'Location permission is required.');
       return;
@@ -62,52 +65,32 @@ export default function MapScreen() {
     const loc = await Location.getCurrentPositionAsync({});
     const heading = (await Location.getHeadingAsync()).trueHeading || 0;
     mapRef.current?.animateCamera(
-      { center: loc.coords, heading },
-      { duration: 800 }
+      {center: loc.coords, heading},
+      {duration: 800}
     );
   };
 
+
   return (
     <View style={styles.container}>
-      <View style={styles.filterContainer}>
-        {FILTERS.map(filter => {
-          const focused = selectedTypes.includes(filter.type);
-          return (
-            <View style={styles.filterItem} key={filter.type}>
-              <TouchableOpacity
-                style={styles.filterButton}
-                onPress={() => handleToggleType(filter.type)}
-              >
-                <FilterIcon
-                  library={filter.library}
-                  name={filter.icon}
-                  size={28}
-                  color={focused ? Theme.colors.primary : '#777'}
-                />
-              </TouchableOpacity>
-              <Text
-                style={[
-                  styles.label,
-                  { color: focused ? Theme.colors.primary : '#666' }
-                ]}
-              >
-                {filter.label}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
+      {/* Top of the screen: Filter Bar*/}
+      <FilterBar
+        filters={FILTERS}
+        selectedTypes={selectedTypes}
+        onToggle={handleToggleType}
+      />
 
+      {/* Shows the map below the filter bar */}
       <MapView
         ref={mapRef}
         style={styles.map}
         initialCamera={initialCamera}
         showsPointsOfInterest={false}
-        onMapReady={() => setMapReady(true)}
         showsUserLocation={true}
         followsUserLocation={false}
         mapType={"satelliteFlyover"}
       >
+        {/* Use a mask to gray out places outside the park */}
         <Polygon
           coordinates={LIVE_MAP.outerPolygon}
           holes={[LIVE_MAP.highlightedArea]}
@@ -116,45 +99,20 @@ export default function MapScreen() {
           strokeColor={Theme.colors.primary}
           zIndex={1}
         />
-
-        {mapReady &&
-          places
-            .filter(
-              spot =>
-                selectedTypes.length === 0 ||
-                selectedTypes.includes(spot.type)
-            )
-            .map(spot => (
-              <Marker
-                key={spot.id}
-                coordinate={spot.coordinate}
-                anchor={{ x: 0.5, y: 1 }}
-                onPress={() => setSelected(spot)}
-                tracksViewChanges={false}
-                zIndex={2}
-              >
-                <CustomMarker
-                  type={spot.type}
-                  name={spot.name}
-                />
-              </Marker>
-            ))}
+        {/* Put customized markers on the map */}
+        <MapMarkers
+          places={places}
+          selectedTypes={selectedTypes}
+          onSelect={setSelected}
+        />
       </MapView>
 
-      <PopupCard spot={selected} onClose={() => setSelected(null)} />
+      {/* Pop-up cards when clicked on specific locations */}
+      <PopupCard spot={selected} onClose={() => setSelected(null)}/>
 
-      <TouchableOpacity
-        style={styles.locateButton}
-        onPress={handleTrackUserLocation}
-      >
-        <Ionicons name="navigate-circle" size={48} color={Theme.colors.primary} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.resetButton}
-        onPress={handleResetCamera}
-      >
-        <Ionicons name="refresh-circle" size={48} color={Theme.colors.primary} />
-      </TouchableOpacity>
+      {/* Two buttons: camera reset & user location recenter */}
+      <FloatingButton icon="navigate-circle" onPress={handleTrackUserLocation} position="right"/>
+      <FloatingButton icon="refresh-circle" onPress={handleResetCamera} position="left"/>
     </View>
   );
 }
@@ -165,41 +123,7 @@ const styles = StyleSheet.create({
     paddingTop: HEIGHT * 0.065,
     backgroundColor: 'white'
   },
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: HEIGHT * 0.015
-  },
-  filterItem: {
-    alignItems: 'center'
-  },
-  filterButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: WIDTH * 0.15
-  },
-  label: {
-    fontSize: 12,
-    marginTop: 2,
-    textAlign: 'center'
-  },
   map: {
     flex: 1
   },
-  locateButton: {
-    position: 'absolute',
-    bottom: HEIGHT * 0.04,
-    right: WIDTH * 0.04,
-    backgroundColor: 'white',
-    borderRadius: 30,
-    padding: 2
-  },
-  resetButton: {
-    position: 'absolute',
-    bottom: HEIGHT * 0.04,
-    left: WIDTH * 0.04,
-    backgroundColor: 'white',
-    borderRadius: 30,
-    padding: 2
-  }
 });

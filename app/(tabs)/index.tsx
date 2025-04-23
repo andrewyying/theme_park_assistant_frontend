@@ -2,14 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, FlatList, Text, Pressable } from 'react-native';
 import { ScreenConst } from '../../constants/screenconst';
-import GreetingCard from '../../components/GreetingCard';
-import MyPlan from '../../components/MyPlan';
+import GreetingCard from '../../components/homeScreen/GreetingCard';
+import MyPlan from '../../components/homeScreen/MyPlan';
 import EventCard from '../../components/EventCard';
 import { LOCAL_HOST } from "@/constants/connection";
+import { useRouter } from 'expo-router';
+
 
 export default function Index() {
   const [events, setEvents] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetch('http://' + LOCAL_HOST + ':8080/events')
@@ -28,8 +31,12 @@ export default function Index() {
       keyExtractor={item => item.id.toString()}
       ListHeaderComponent={() => (
         <>
-          <GreetingCard />
-          <MyPlan />
+          <Pressable onPress={() => router.push('/profile')}>
+            <GreetingCard />
+          </Pressable>
+          <Pressable onPress={() => router.push('/plantrip')}>
+            <MyPlan />
+          </Pressable>
           <Text style={styles.subtitle}>Upcoming Events</Text>
         </>
       )}

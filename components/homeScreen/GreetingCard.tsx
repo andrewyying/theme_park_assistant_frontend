@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import Card from './Card';
-import { ScreenConst } from '../constants/screenconst';
+import Card from '../Card';
+import { ScreenConst } from '../../constants/screenconst';
 
 const WIDTH = ScreenConst.window.width;
 const HEIGHT = ScreenConst.window.height;
